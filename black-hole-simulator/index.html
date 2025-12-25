@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Black Hole Simulator</title>
+<style>
+body { margin:0; overflow:hidden; background:black; color:white; }
+.controls {
+    position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.5); padding: 15px;
+    border-radius: 8px; font-family: Arial; font-size: 14px;
+}
+.controls label { display:block; margin-top: 10px; }
+.controls span { float:right; color:#00ffcc; }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <label>Black Hole Mass: <span id="massValue">10</span> M☉
+    <input type="range" id="mass" min="5" max="50" value="10">
+  </label>
+
+  <label>Observer Distance: <span id="distanceValue">5</span>
+    <input type="range" id="distance" min="2" max="10" value="5">
+  </label>
+</div>
+
+<script type="module" src="./app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+</body>
+</html>

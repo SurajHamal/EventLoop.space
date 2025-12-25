@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CosmoLab | Interactive Science Simulations</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0a0a0a;
+      color: white;
+      text-align: center;
+    }
+
+    header {
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #aaa;
+      font-size: 18px;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 50px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background: #111;
+      border: 1px solid #333;
+      width: 300px;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(255,255,255,0.05);
+      position: relative;
+    }
+
+    .card h2 {
+      margin-top: 0;
+    }
+
+    .card p {
+      color: #bbb;
+      line-height: 1.4;
+    }
+
+    .card a {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #1e90ff;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+
+    .card a:hover {
+      background: #3aa0ff;
+    }
+
+    .preview {
+      width: 280px;
+      height: 180px;
+      margin: 15px auto 0 auto;
+      cursor: grab;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #000;
+      display: block;
+    }
+
+    footer {
+      margin-top: 60px;
+      padding: 20px;
+      color: #666;
+      font-size: 14px;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.154.0/examples/js/controls/OrbitControls.min.js"></script>
+</head>
+<body>
+
+<header>
+  <h1>CosmoLab</h1>
+  <div class="subtitle">
+    Interactive science simulations that explain the universe<br>
+    Built by Suraj Hamal
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>🌌 Black Hole Simulator</h2>
+    <p>Explore gravity, time dilation, and space-time curvature around a Schwarzschild black hole.</p>
+    <div class="preview" id="bhPreview"></div>
+    <a href="black-hole-simulator/index.html">Launch Simulator</a>
+  </div>
+
+  <div class="card">
+    <h2>🛰️ GPS Relativity Simulator</h2>
+    <p>Discover why Einstein’s relativity is required for GPS to work accurately on your phone.</p>
+    <div class="preview" id="gpsPreview"></div>
+    <a href="gps-relativity/index.html">Launch Simulator</a>
+  </div>
+
+</div>
+
+<footer>
+  More simulations coming soon • Physics made visual
+</footer>
+
+<script>
+  // -------------------- Black Hole 3D Preview --------------------
+  const bhContainer = document.getElementById('bhPreview');
+  const bhScene = new THREE.Scene();
+  const bhCamera = new THREE.PerspectiveCamera(50, bhContainer.clientWidth/bhContainer.clientHeight, 0.1, 1000);
+  const bhRenderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+  bhRenderer.setSize(bhContainer.clientWidth, bhContainer.clientHeight);
+  bhContainer.appendChild(bhRenderer.domElement);
+
+  // Orbit controls
+  const bhControls = new THREE.OrbitControls(bhCamera, bhRenderer.domElement);
+  bhControls.enableZoom = false;
+  bhControls.enablePan = false;
+  bhControls.enableDamping = true;
+  bhControls.dampingFactor = 0.05;
+
+  // Black hole core
+  const bhGeometry = new THREE.SphereGeometry(1, 64, 64);
+  const bhMaterial = new THREE.MeshBasicMaterial({color: 0x000000});
+  const blackHole = new THREE.Mesh(bhGeometry, bhMaterial);
+  bhScene.add(blackHole);
+
+  // Halo
+  const haloGeometry = new THREE.SphereGeometry(1.3, 64, 64);
+  const haloMaterial = new THREE.MeshBasicMaterial({color: 0xff5500, transparent: true, opacity: 0.4});
+  const halo = new THREE.Mesh(haloGeometry, haloMaterial);
+  bhScene.add(halo);
+
+  bhCamera.position.z = 5;
+
+  function animateBH() {
+    requestAnimationFrame(animateBH);
+    blackHole.rotation.y += 0.01;
+    halo.rotation.y -= 0.008;
+    bhControls.update();
+    bhRenderer.render(bhScene, bhCamera);
+  }
+  animateBH();
+
+  // -------------------- GPS 3D Preview --------------------
+  const gpsContainer = document.getElementById('gpsPreview');
+  const gpsScene = new THREE.Scene();
+  const gpsCamera = new THREE.PerspectiveCamera(50, gpsContainer.clientWidth/gpsContainer.clientHeight, 0.1, 1000);
+  const gpsRenderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+  gpsRenderer.setSize(gpsContainer.clientWidth, gpsContainer.clientHeight);
+  gpsContainer.appendChild(gpsRenderer.domElement);
+
+  const gpsControls = new THREE.OrbitControls(gpsCamera, gpsRenderer.domElement);
+  gpsControls.enableZoom = false;
+  gpsControls.enablePan = false;
+  gpsControls.enableDamping = true;
+  gpsControls.dampingFactor = 0.05;
+
+  // Earth
+  const earthGeometry = new THREE.SphereGeometry(1, 64, 64);
+  const earthTexture = new THREE.TextureLoader().load('https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg');
+  const earthMaterial = new THREE.MeshBasicMaterial({map: earthTexture});
+  const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+  gpsScene.add(earth);
+
+  // Satellite
+  const satGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+  const satMaterial = new THREE.MeshBasicMaterial({color: 0xff0000});
+  const satellite = new THREE.Mesh(satGeometry, satMaterial);
+  gpsScene.add(satellite);
+
+  gpsCamera.position.z = 3;
+
+  let satAngle = 0;
+  function animateGPS() {
+    requestAnimationFrame(animateGPS);
+    earth.rotation.y += 0.005;
+    satAngle += 0.03;
+    satellite.position.x = Math.cos(satAngle) * 1.5;
+    satellite.position.z = Math.sin(satAngle) * 1.5;
+    gpsControls.update();
+    gpsRenderer.render(gpsScene, gpsCamera);
+  }
+  animateGPS();
+</script>
+
+</body>
+</html>
