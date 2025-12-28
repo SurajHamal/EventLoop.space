@@ -18,7 +18,8 @@ import { CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js';
 
 // --- Global State Variables ---
 let simulatedTime = new Date(); 
-let timeScale = 1;            
+let timeScale = 1;   
+window.timeScale = 1;         
 let trackingMode = 'EARTH';      
 let focusTarget = { type: 'SYSTEM', index: null }; 
 let activeSatIndex = 0;          
@@ -104,27 +105,38 @@ const uiContainer = createUI({
         focusTarget = { type: 'SATELLITE', index: index };
         trackingMode = 'SATELLITE';
         activeSatIndex = index;
+        
+        // Use your existing module function
         updateCameraLimits(controls, 'SATELLITE');
 
         const targetSat = satellites[index];
         const satWorldPos = new THREE.Vector3();
         targetSat.getWorldPosition(satWorldPos);
 
+        // Move target instantly, camera follows via lerp in animate()
         controls.target.copy(satWorldPos);
-        camera.position.set(satWorldPos.x + 20, satWorldPos.y + 10, satWorldPos.z + 20);
-        controls.update();
+        camera.position.set(satWorldPos.x + 30, satWorldPos.y + 15, satWorldPos.z + 30);
     },
     onModeChange: (mode) => {
         focusTarget = { type: mode, index: null };
         trackingMode = mode;
+        
+        // Use your existing module function
         updateCameraLimits(controls, mode);
         
-        if (mode === 'SATELLITE') {
-            focusTarget = { type: 'SATELLITE', index: 0 };
-            activeSatIndex = 0;
+        // Set camera target based on body
+        const targetPos = new THREE.Vector3();
+        if (mode === 'SUN') {
+            targetPos.set(0, 0, 0);
+        } else if (mode === 'MOON') {
+            moonMesh.getWorldPosition(targetPos);
+        } else {
+            earth.getWorldPosition(targetPos);
         }
+        
+        controls.target.copy(targetPos);
     },
-    onSpeedChange: (val) => { timeScale = val; },
+    onSpeedChange: (val) => { window.timeScale = val; },
     onReset: () => { simulatedTime = new Date(); }
 });
 
