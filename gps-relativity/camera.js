@@ -1,7 +1,7 @@
 /**
  * @fileoverview Camera Management Module - Suraj Hamal
  */
-import { OrbitControls } from 'https://unpkg.com/three@0.158.0/examples/jsm/controls/OrbitControls.js?module';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 export function initCameraControls(camera, domElement) {
     const controls = new OrbitControls(camera, domElement);

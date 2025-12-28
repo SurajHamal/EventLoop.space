@@ -3,8 +3,7 @@
  * @author Suraj Hamal
  * @description Creates a textured stellar body with a volumetric corona effect.
  */
-import * as THREE from 'https://unpkg.com/three@0.158.0/build/three.module.js?module';
-
+import * as THREE from 'three';
 export function createSun() {
     const sunGroup = new THREE.Group();
     const loader = new THREE.TextureLoader();

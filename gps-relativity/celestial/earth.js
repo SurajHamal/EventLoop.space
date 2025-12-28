@@ -12,7 +12,7 @@
  * 4. Rayleigh Scattering (Atmospheric Halo): Back-face culled gas simulation.
  */
 
-import * as THREE from 'https://unpkg.com/three@0.158.0/build/three.module.js?module';
+import * as THREE from 'three';
 
 export function createEarthSystem(textureLoader) {
     // -------------------------------------------------------------------------

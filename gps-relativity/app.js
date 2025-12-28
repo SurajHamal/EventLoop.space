@@ -5,7 +5,7 @@
  * Date: 2025
  */
 
-import * as THREE from 'https://unpkg.com/three@0.158.0/build/three.module.js';
+import * as THREE from 'three';
 import * as PHYSICS from './physics.js'; 
 import { createSpace } from './space.js';
 import { createSun } from './celestial/sun.js';
@@ -109,13 +109,22 @@ const uiContainer = createUI({
         // Use your existing module function
         updateCameraLimits(controls, 'SATELLITE');
 
-        const targetSat = satellites[index];
-        const satWorldPos = new THREE.Vector3();
-        targetSat.getWorldPosition(satWorldPos);
+const targetSat = satellites[index];
+    const satPos = new THREE.Vector3();
+    targetSat.getWorldPosition(satPos);
 
+    // 1. Get direction from satellite to Sun (0,0,0)
+    const toSun = new THREE.Vector3().subVectors(new THREE.Vector3(0,0,0), satPos).normalize();
+
+    // 2. Move camera 20 units TOWARDS the sun from the satellite
+    // This ensures the lit side is facing you
+    camera.position.set(
+        satPos.x + (toSun.x * 20),
+        satPos.y + 5, // Keep a little height for 3D depth
+        satPos.z + (toSun.z * 20)
+    );
         // Move target instantly, camera follows via lerp in animate()
-        controls.target.copy(satWorldPos);
-        camera.position.set(satWorldPos.x + 30, satWorldPos.y + 15, satWorldPos.z + 30);
+        controls.target.copy(satWorldPos);    
     },
     onModeChange: (mode) => {
         focusTarget = { type: mode, index: null };
@@ -130,6 +139,11 @@ const uiContainer = createUI({
             targetPos.set(0, 0, 0);
         } else if (mode === 'MOON') {
             moonMesh.getWorldPosition(targetPos);
+            camera.position.set(
+            targetPos.x + 90, 
+            targetPos.y + 90, 
+            targetPos.z + 90
+        );
         } else {
             earth.getWorldPosition(targetPos);
         }
@@ -173,23 +187,32 @@ function animate() {
 
     scene.updateMatrixWorld();
 
-    const targetPos = new THREE.Vector3();
-    if (trackingMode === 'SATELLITE' && satellites.length > 0) {
-        satellites[activeSatIndex]?.getWorldPosition(targetPos);
+const targetPos = new THREE.Vector3();
+
+    // Determine the focus point based on the mode
+    if (trackingMode === 'SATELLITE' && satellites[activeSatIndex]) {
+        satellites[activeSatIndex].getWorldPosition(targetPos);
     } else if (trackingMode === 'MOON' && moonMesh) {
+        // This makes the Moon the pivot point for rotation
         moonMesh.getWorldPosition(targetPos);
     } else if (trackingMode === 'SUN') {
         targetPos.set(0, 0, 0);
-    } else if (earth) {
+    } else {
+        // Default: Earth is the pivot
         earth.getWorldPosition(targetPos);
     }
 
+    // Use your follow speed logic
+    // 0.3 for fast-moving satellites, 0.1 for smooth planet rotation
     const followSpeed = (trackingMode === 'SATELLITE') ? 0.3 : 0.1;
+    
+    // This is what allows you to "look around" while staying attached
     controls.target.lerp(targetPos, followSpeed);
 
-    updateUI(uiContainer, satellites, simulatedTime, timeScale, focusTarget);
+    // Update the UI
+    updateUI(uiContainer, satellites, simulatedTime, window.timeScale, focusTarget);
 
-    controls.update();
+    controls.update(); // Vital for OrbitControls damping to work
     renderer.render(scene, camera);
     labelRenderer.render(scene, camera); 
 }
