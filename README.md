@@ -1,4 +1,4 @@
-🛰️ EVENTLOOP.SPACE
+🛰️ EVENTLOOP.SPACE [https://eventloop.space]
 
 Full-Cycle Engineering & Computational Architecture
 
