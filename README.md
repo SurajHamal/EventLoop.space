@@ -1,10 +1,6 @@
-# 🌐 EVENTLOOP SYSTEMS
+🛰️ EVENTLOOP.SPACE
 
-### [EventLoop Systems | Computational Architecture](https://eventloop.space)
-
-**Principal Engineer:** Suraj Hamal
-
-**Location:** United States
+Full-Cycle Engineering & Computational Architecture
 
 ## Project Overview
 
