@@ -26,7 +26,7 @@
  *    - Stored in userData for potential UI display
  */
 
-import * as THREE from 'https://unpkg.com/three@0.158.0/build/three.module.js';
+import * as THREE from 'three';
 import * as PHYSICS from '../physics.js';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 

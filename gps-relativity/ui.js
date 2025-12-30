@@ -61,6 +61,26 @@ export function createUI(callbacks) {
             .tab:hover { background: rgba(255, 255, 255, 0.1); color: white; }
             .tab.active { background: var(--neon); color: #000; box-shadow: 0 0 15px rgba(0, 242, 255, 0.3); }
 
+            /* --- MISSION CONTROL PANEL STYLES --- */
+            .mission-control {
+                top: 80px; 
+                right: 20px;
+                width: 240px;
+                background: var(--panel-bg);
+                backdrop-filter: var(--blur);
+                border-radius: 12px;
+                border: 1px solid rgba(0, 242, 255, 0.2);
+                border-left: 4px solid var(--neon);
+                padding: 15px;
+                font-family: 'monospace';
+                pointer-events: auto;
+                display: none; 
+            }
+            .hud-title { font-size: 9px; color: var(--neon); opacity: 0.7; letter-spacing: 2px; margin-bottom: 10px; }
+            .hud-row { margin-bottom: 8px; }
+            .hud-val { font-size: 14px; color: #fff; font-weight: bold; }
+            .hud-label { font-size: 8px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
+
             .focus-bar {
                 position: fixed;
                 bottom: 100px;
@@ -111,6 +131,7 @@ export function createUI(callbacks) {
                 .station-panel[style*="left: 20px"] { left: 10px !important; bottom: 10px !important; }
                 .station-panel[style*="right: 20px"] { right: 10px !important; bottom: 10px !important; }
                 .focus-bar { bottom: 80px; width: 90vw; justify-content: center; }
+                .mission-control { width: 180px; right: 10px; top: 70px; }
             }
 
             .clock-label { font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 2px; margin-bottom: 4px; }
@@ -121,6 +142,15 @@ export function createUI(callbacks) {
 
     const tabContainer = document.createElement('div');
     tabContainer.className = 'hud-base tab-container';
+
+    // NEW: MISSION CONTROL PANEL
+    const missionControl = document.createElement('div');
+    missionControl.id = 'mission-control-panel';
+    missionControl.className = 'hud-base mission-control';
+    missionControl.innerHTML = `
+        <div class="hud-title">LIVE TELEMETRY</div>
+        <div id="mission-content"></div>
+    `;
 
     const focusBar = document.createElement('div');
     focusBar.className = 'hud-base focus-bar hidden'; 
@@ -134,7 +164,9 @@ export function createUI(callbacks) {
     const resetBtn = focusBar.querySelector('.reset-btn');
     resetBtn.onclick = () => {
         if (currentFocus.type === 'SATELLITE') {
-            callbacks.onSelectGPS(currentFocus.index);
+            if (typeof currentFocus.index === 'number') {
+                callbacks.onSelectGPS(currentFocus.index);
+            }
         } else {
             callbacks.onModeChange(currentFocus.type);
         }
@@ -159,7 +191,7 @@ export function createUI(callbacks) {
         <div id="live-clock" class="clock-time">--:--:--</div>
     `;
 
-    document.body.append(tabContainer, focusBar, speedBox, earthClock);
+    document.body.append(tabContainer, focusBar, speedBox, earthClock, missionControl);
 
     const speedInput = speedBox.querySelector('#global-speed');
     speedInput.addEventListener('input', (e) => callbacks.onSpeedChange(parseFloat(e.target.value)));
@@ -185,15 +217,14 @@ export function updateUI(ui, satellites, simulatedTime, timeScale, focusTarget) 
     if (simTimeEl) simTimeEl.innerText = simulatedTime.toLocaleTimeString();
     if (simDateEl) simDateEl.innerText = simulatedTime.toISOString().split('T')[0];
 
-    // 2. Handle Tab Rendering
+    // 2. Handle Tab Rendering (Optimized with lastTargetID check)
     const currentTargetID = `${focusTarget.type}-${focusTarget.index}`;
     
-    // Check if the focus has changed OR if the container is empty
     if (currentTargetID !== lastTargetID || ui.tabContainer.innerHTML === '') {
         lastTargetID = currentTargetID;
         ui.tabContainer.innerHTML = '';
         
-        // Render Mode Tabs
+        // Render Mode Tabs (SUN, EARTH, MOON)
         ['SUN', 'EARTH', 'MOON'].forEach(body => {
             const t = document.createElement('div');
             t.className = `tab ${focusTarget.type === body ? 'active' : ''}`;
@@ -207,36 +238,47 @@ export function updateUI(ui, satellites, simulatedTime, timeScale, focusTarget) 
             const t = document.createElement('div');
             const isActive = (focusTarget.type === 'SATELLITE' && focusTarget.index === index);
             t.className = `tab ${isActive ? 'active' : ''}`;
-            t.innerText = sat.userData.id || `SAT ${index}`;
+            
+            // Priority: Real Data Name > Procedural ID > Default Index
+            const satName = window.realSatelliteData?.[index]?.name || sat.userData.id || `SAT ${index}`;
+            t.innerText = satName;
+            
             t.onclick = () => ui.callbacks.onSelectGPS(index);
             ui.tabContainer.appendChild(t);
         });
 
-        // Sync state so the reset button knows the current target
         if (ui.setInternalState) ui.setInternalState(focusTarget.type, focusTarget.index);
     }
 
     // 3. Handle Reset Button (Focus Bar)
     if (ui && ui.focusBar) {
-        const shouldShow = focusTarget.type === 'SATELLITE' || focusTarget.type === 'MOON';
+        const shouldShowFocus = focusTarget.type === 'SATELLITE' || focusTarget.type === 'MOON';
+        ui.focusBar.style.display = shouldShowFocus ? 'flex' : 'none';
+        ui.focusBar.style.opacity = shouldShowFocus ? '1' : '0';
+        ui.focusBar.style.pointerEvents = shouldShowFocus ? 'auto' : 'none';
         
-        if (shouldShow) {
-            ui.focusBar.style.display = 'flex'; 
-            ui.focusBar.style.opacity = '1';
-            ui.focusBar.style.visibility = 'visible'; 
-            ui.focusBar.style.pointerEvents = 'auto';
-            
+        if (shouldShowFocus) {
             const labelEl = document.getElementById('focus-label');
             if (labelEl) {
                 const name = focusTarget.type === 'SATELLITE' 
-                    ? (satellites[focusTarget.index]?.userData.id || 'SATELLITE') 
+                    ? (window.realSatelliteData?.[focusTarget.index]?.name || satellites[focusTarget.index]?.userData.id || 'SATELLITE') 
                     : 'MOON';
                 labelEl.innerText = `LOCKED: ${name}`;
             }
+        }
+    }
+
+    // --- ADDED: 4. Handle Mission Control Panel Visibility ---
+    const missionPanel = document.getElementById('mission-control-panel');
+    if (missionPanel) {
+        // Only show the live telemetry panel if we are specifically tracking a satellite
+        if (focusTarget.type === 'SATELLITE') {
+            missionPanel.style.display = 'block';
         } else {
-            ui.focusBar.style.display = 'none';
-            ui.focusBar.style.opacity = '0';
-            ui.focusBar.style.pointerEvents = 'none';
+            missionPanel.style.display = 'none';
+            // Optional: Clear content when hidden so old data doesn't flicker next time
+            const content = document.getElementById('mission-content');
+            if (content) content.innerHTML = '';
         }
     }
 }
