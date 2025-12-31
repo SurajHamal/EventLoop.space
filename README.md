@@ -52,6 +52,27 @@ The project utilizes **Visual Studio Code** for modular file management, ensurin
 * **`ui.js`:** A reactive HUD that generates the "Mission Control" interface dynamically using CSS3 Backdrop-filters.
 * **`app.js`:** The main orchestration script that manages the Three.js render loop and event listeners.
 
+gps-relativity/
+├── celestial/
+│   ├── earth.js
+│   ├── moon.js
+│   ├── sun.js
+├── entities/
+│   ├── satellite.js
+│   ├── telemetry.js
+│   └── paths.js            <-- [NEW] Orbital math & Line geometries
+├── api/                    <-- [NEW] Create this folder for external data
+│   └── n2yo.js             <-- [NEW] Fetching and syncing logic
+├── assets/
+│   ├── images/
+│   └── videos/
+├── app.js
+├── camera.js
+├── ui.js
+├── physics.js
+├── space.js
+└── index.html
+
 ---
 
 ## 📚 References & Citations

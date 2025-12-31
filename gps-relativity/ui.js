@@ -282,3 +282,49 @@ export function updateUI(ui, satellites, simulatedTime, timeScale, focusTarget) 
         }
     }
 }
+
+export function updateMissionControlUI(stats, countryName) {
+const panel = document.getElementById('mission-control-panel');
+const content = document.getElementById('mission-content');
+
+if (panel && content) {
+    panel.style.display = 'block'; // Reveal the UI.js panel
+
+    // Determine if we are using real data or fallback
+    const isReal = window.realSatelliteData && window.realSatelliteData.length > 0;
+    const statusColor = isReal ? '#00ff88' : '#ffa500'; // Green vs Orange
+    const sourceLabel = isReal ? 'LIVE UPLINK (N2YO)' : 'INTERNAL SIMULATION'
+
+content.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid rgba(0,242,255,0.2); padding-bottom: 8px;">
+                <div style="width: 8px; height: 8px; border-radius: 50%; background: ${statusColor}; box-shadow: 0 0 8px ${statusColor};"></div>
+                <div style="font-size: 9px; letter-spacing: 1px; color: ${statusColor}">${sourceLabel}</div>
+            </div>
+
+            <div class="hud-row">
+                <div class="hud-label">SATELLITE IDENTIFIER</div>
+                <div class="hud-val">${stats.name}</div>
+            </div>
+            <div class="hud-row">
+                <div class="hud-label">GEOSPATIAL LOCUS</div>
+                <div class="hud-val" style="color: var(--neon); font-size: 11px;">${countryName}</div>
+            </div>
+            <div class="hud-row">
+                <div class="hud-label">ALTITUDE / VELOCITY</div>
+                <div class="hud-val">${stats.alt} KM <span style="font-size:10px; opacity:0.5;">@</span> ${stats.speed} KM/H</div>
+            </div>
+            <div class="hud-row">
+                <div class="hud-label">TEMPORAL DILATION (NET)</div>
+                <div class="hud-val" style="color: ${stats.dilation > 0 ? '#00ff88' : '#ff4444'}">
+                    ${stats.dilation > 0 ? '+' : ''}${stats.dilation} ns/day
+                </div>
+            </div>
+            <div class="hud-row">
+                <div class="hud-label">TOTAL ACCUMULATED DRIFT</div>
+                <div class="hud-val" style="color: var(--neon); text-shadow: 0 0 10px rgba(0,242,255,0.5);">
+                    ${stats.drift} ns
+                </div>
+            </div>
+        `;
+}
+}

@@ -13,7 +13,7 @@ export function createSpace(scene) {
     });
 
     const starVertices = [];
-    const starCount = 15000;
+    const starCount = 45000;
     
     // We place stars at a distance of 30,000 to 35,000 units.
     // This is far beyond the Moon's orbit (approx 6,000 units).
