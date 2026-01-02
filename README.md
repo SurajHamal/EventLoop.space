@@ -1,5 +1,5 @@
 <h1>
-  <a href="https://eventloop.space" target="_blank"> 🛰️ EventLoop.space</a>
+  <a href="https://eventloop.space" target="_blank"> EventLoop.space</a>
 </h1>
 
 ## Computational Architecture & Relativistic Engineering
@@ -12,7 +12,7 @@ An advanced computational engine architected to simulate deterministic orbital e
 
 ---
 
-## 🛠️ Tech Stack & Development Environment
+## Tech Stack & Development Environment
 
 ### **Core Development**
 
@@ -28,7 +28,7 @@ An advanced computational engine architected to simulate deterministic orbital e
 
 ---
 
-## 🔬 Technical Specification: The Relativity Manifold
+## Technical Specification: The Relativity Manifold
 
 The engine accounts for the net temporal offset  by calculating the divergence between a ground-based clock and the orbital clock.
 
@@ -44,7 +44,7 @@ Based on the **Schwarzschild metric**, clocks gain time as they move further fro
 
 ---
 
-## 🏗️ Software Architecture
+## Software Architecture
 
 The project utilizes **Visual Studio Code** for modular file management, ensuring the simulation remains performant at 60 FPS:
 
@@ -52,30 +52,10 @@ The project utilizes **Visual Studio Code** for modular file management, ensurin
 * **`ui.js`:** A reactive HUD that generates the "Mission Control" interface dynamically using CSS3 Backdrop-filters.
 * **`app.js`:** The main orchestration script that manages the Three.js render loop and event listeners.
 
-gps-relativity/
-├── celestial/
-│   ├── earth.js
-│   ├── moon.js
-│   ├── sun.js
-├── entities/
-│   ├── satellite.js
-│   ├── telemetry.js
-│   └── paths.js            <-- [NEW] Orbital math & Line geometries
-├── api/                    <-- [NEW] Create this folder for external data
-│   └── n2yo.js             <-- [NEW] Fetching and syncing logic
-├── assets/
-│   ├── images/
-│   └── videos/
-├── app.js
-├── camera.js
-├── ui.js
-├── physics.js
-├── space.js
-└── index.html
 
 ---
 
-## 📚 References & Citations
+## References & Citations
 
 * **Ashby, N. (2003).** *Relativity in the Global Positioning System.* Living Reviews in Relativity.
 * **Einstein, A. (1916).** *The Foundation of the General Theory of Relativity.* * **Hoots, F. R., & Roehrich, R. L. (1980).** *Models for Propagation of NORAD Element Sets.*
