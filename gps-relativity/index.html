@@ -3,11 +3,21 @@
 <head>
     <meta name="google" content="notranslate">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>EventLoop Systems | Orbital Engine</title>
-    <link rel="stylesheet" href="style.css">
+    
+    <meta name="author" content="Suraj Hamal">
+    <meta name="description" content="Relativistic Orbital Mechanics & Satellite Tracking Visualization">
     <link rel="icon" href="assets/images/logos/favicon.png" type="image/png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+
+    <script src="libs/satellite.min.js"></script>
+
     <script type="importmap">
       {
         "imports": {
@@ -17,125 +27,95 @@
       }
     </script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/satellite.js/4.0.0/satellite.min.js"></script>
-
     <style>
         :root {
             --glass-bg: rgba(15, 15, 20, 0.7);
             --glass-border: rgba(255, 255, 255, 0.1);
+            --neon-blue: #00f2ff;
         }
 
         body { 
             margin: 0; 
             overflow: hidden; 
-            background: radial-gradient(circle at center, #0a0a14 0%, #000 100%);
+            background: #000;
             font-family: 'Inter', sans-serif;
             color: white;
             -webkit-font-smoothing: antialiased;
         }
 
-
+        /* High-Precision CSS Labels for 3D Objects */
         .sat-label {
             color: #ffffff;
             font-family: 'monospace';
-            font-size: 12px;
-            padding: 2px 6px;
-            background: rgba(0, 0, 0, 0.6);
-            border-left: 2px solid #00f2ff; /* We can change this color per satellite */
-            pointer-events: none; /* Allows mouse to click through the label */
+            font-size: 11px;
+            padding: 3px 8px;
+            background: rgba(0, 0, 0, 0.7);
+            border-left: 2px solid var(--neon-blue);
+            pointer-events: none;
             white-space: nowrap;
-            animation: fadeIn 0.3s ease-out;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 4px 4px 10px rgba(0,0,0,0.5);
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(8px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* Slider styles remain the same... */
+        /* Modernized Hardware-Accelerated Range Input */
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
-        /* ... (Keep your existing slider CSS here) ... */
-
-        /* Modernized Custom Slider Styling */
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            background: transparent;
-        }
-
-        input[type=range]:focus {
-            outline: none;
-        }
-
+        input[type=range]:focus { outline: none; }
         input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 2px;
+            width: 100%; height: 3px; cursor: pointer;
+            background: rgba(255, 255, 255, 0.2); border-radius: 2px;
         }
-
         input[type=range]::-webkit-slider-thumb {
-            height: 16px;
-            width: 16px;
-            border-radius: 50%;
-            background: #ffffff;
-            cursor: pointer;
-            -webkit-appearance: none;
-            margin-top: -6px; /* Centers thumb on track */
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-            transition: transform 0.2s ease;
+            height: 14px; width: 14px; border-radius: 50%;
+            background: var(--neon-blue); cursor: pointer; -webkit-appearance: none;
+            margin-top: -6px; border: 2px solid #fff;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+            transition: transform 0.15s ease-out;
         }
+        input[type=range]:active::-webkit-slider-thumb { transform: scale(1.3); }
 
-        input[type=range]:active::-webkit-slider-thumb {
-            transform: scale(1.2);
-        }
-
-
-        /* Subtle loading state or credit info */
-        #footer {
-            position: absolute;
-            bottom: 10px;
-            right: 20px;
-            font-size: 10px;
-            color: rgba(255, 255, 255, 0.3);
-            letter-spacing: 1px;
-            pointer-events: none;
+        #footer-branding {
+            position: absolute; bottom: 15px; right: 25px;
+            font-size: 9px; color: rgba(255, 255, 255, 0.25);
+            letter-spacing: 2px; pointer-events: none;
+            text-transform: uppercase;
+            font-weight: 600;
         }
     </style>
 </head>
-<body translate = "no">
-    <div id="footer">GEOSPATIAL RELATIVITY LAB // V1.0</div>
-
-    <script type="module" src="./app.js"></script>
-</body>
-<div id="loading-screen">
-    <div class="loader-visual-bg"></div>
-    <div class="loader-glass">
-        <div class="loader-header">
-            <span class="glitch-text" data-text="EVENTLOOP SYSTEMS">EVENTLOOP SYSTEMS</span>
-            <div class="orbit-spinner"></div>
-        </div>
-        
-        <div class="terminal-container">
-            <div id="terminal-lines">
-                <div class="line active">> INITIALIZING QUANTUM ORBITAL ENGINE...</div>
-                <div class="line">> DEPLOYING HEURISTIC UPLINK [N2YO.v2]</div>
-                <div class="line">> SYNCING RELATIVISTIC TIME-DILATION ARRAYS</div>
-                <div class="line">> ESTABLISHING SAT-COMMS CONSTELLATION</div>
+<body>
+    <div id="loading-screen">
+        <div class="loader-visual-bg"></div>
+        <div class="loader-glass">
+            <div class="loader-header">
+                <span class="glitch-text" data-text="EVENTLOOP SYSTEMS">EVENTLOOP SYSTEMS</span>
+                <div class="orbit-spinner"></div>
             </div>
-        </div>
-
-        <div class="footer-meta">
-            <div class="meta-item">
-                <span class="label">CORE:</span>
-                <span class="val">DETERMINISTIC_V8</span>
+            
+            <div class="terminal-container">
+                <div id="terminal-lines">
+                    <div class="line active">> INITIALIZING DETERMINISTIC ORBITAL ENGINE...</div>
+                    <div class="line">> DEPLOYING HEURISTIC UPLINK [N2YO.v2]</div>
+                    <div class="line">> SYNCING RELATIVISTIC TIME-DILATION ARRAYS</div>
+                    <div class="line">> ESTABLISHING SAT-COMMS CONSTELLATION</div>
+                </div>
             </div>
-            <div class="meta-item">
-                <span class="label">LOC:</span>
-                <span class="val">US_EAST_01</span>
+
+            <div class="footer-meta">
+                <div class="meta-item"><span class="label">ENGINE:</span><span class="val">SUR-HAM-V1</span></div>
+                <div class="meta-item"><span class="label">FRAME:</span><span class="val">60Hz_ECI</span></div>
             </div>
         </div>
     </div>
-</div>
+
+    <div id="footer-branding">GEOSPATIAL RELATIVITY LAB // SURAJ HAMAL // 2026</div>
+
+    <script type="module" src="./app.js"></script>
+</body>
 </html>

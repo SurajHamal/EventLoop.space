@@ -1,10 +1,26 @@
 /**
- * @fileoverview HUD Module - Top Menu Navigation & Restored Clocks
+ * @fileoverview Mission Control HUD & Telemetry Interface
+ * @author Suraj Hamal, Computer Scientist
+ * * * ARCHITECTURAL DESIGN:
+ * 1. DYNAMIC DOM MANIPULATION: 
+ * Managed through a hybrid of template literals and standard DOM API for 
+ * high-performance UI updates in a 60FPS WebGL environment.
+ * 2. STATE SYNCHRONIZATION: 
+ * Employs a 'lastTargetID' memoization pattern to prevent redundant 
+ * re-renders of the navigation tab system.
+ * 3. MULTI-CLOCK TEMPORAL TRACKING:
+ * Dual-track time management: Real-time Station ID (Earth) and 
+ * Scalable Simulation Epoch (SGP4 Delta).
  */
 
-// Global tracking variable to prevent redundant DOM re-renders
+// Memoization anchor to prevent unnecessary tab redraws
 let lastTargetID = null;
 
+/**
+ * INJECTS THE UI ARCHITECTURE AND CSS INTO THE DOCUMENT
+ * @param {Object} callbacks - Function pointers for Mode Changes and Time Scaling.
+ * @returns {Object} References to key UI nodes and state setters.
+ */
 export function createUI(callbacks) {
     const styleSheet = document.createElement("style");
     styleSheet.innerText = `
@@ -38,7 +54,6 @@ export function createUI(callbacks) {
                 overflow-x: auto;
                 pointer-events: auto;
                 scrollbar-width: none; 
-                -ms-overflow-style: none;
             }
 
             .tab-container::-webkit-scrollbar { display: none; }
@@ -61,7 +76,6 @@ export function createUI(callbacks) {
             .tab:hover { background: rgba(255, 255, 255, 0.1); color: white; }
             .tab.active { background: var(--neon); color: #000; box-shadow: 0 0 15px rgba(0, 242, 255, 0.3); }
 
-            /* --- MISSION CONTROL PANEL STYLES --- */
             .mission-control {
                 top: 80px; 
                 right: 20px;
@@ -99,8 +113,6 @@ export function createUI(callbacks) {
                 transition: opacity 0.3s ease;
             }
 
-            .focus-bar.hidden { display: none; }
-
             .reset-btn {
                 background: var(--neon);
                 color: #000;
@@ -123,27 +135,19 @@ export function createUI(callbacks) {
                 pointer-events: auto;
             }
 
-            @media (max-width: 768px) {
-                .tab { padding: 6px 12px; font-size: 9px; }
-                .station-panel { padding: 8px 12px; min-width: 140px; }
-                .clock-time { font-size: 14px; }
-                .clock-label { font-size: 8px; }
-                .station-panel[style*="left: 20px"] { left: 10px !important; bottom: 10px !important; }
-                .station-panel[style*="right: 20px"] { right: 10px !important; bottom: 10px !important; }
-                .focus-bar { bottom: 80px; width: 90vw; justify-content: center; }
-                .mission-control { width: 180px; right: 10px; top: 70px; }
-            }
-
             .clock-label { font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 2px; margin-bottom: 4px; }
             .clock-date { font-size: 11px; color: white; opacity: 0.8; }
             .clock-time { font-size: 16px; color: var(--neon); font-weight: 700; }
         `;
     document.head.appendChild(styleSheet);
 
+    // --- DOM STRUCTURE ASSEMBLY ---
+    
+    // Top Navigation (Object Tracking Tabs)
     const tabContainer = document.createElement('div');
     tabContainer.className = 'hud-base tab-container';
 
-    // NEW: MISSION CONTROL PANEL
+    // Mission Control (Relativistic Data Display)
     const missionControl = document.createElement('div');
     missionControl.id = 'mission-control-panel';
     missionControl.className = 'hud-base mission-control';
@@ -152,6 +156,7 @@ export function createUI(callbacks) {
         <div id="mission-content"></div>
     `;
 
+    // Lower Focus Bar (Camera Recenter Logic)
     const focusBar = document.createElement('div');
     focusBar.className = 'hud-base focus-bar hidden'; 
     focusBar.innerHTML = `
@@ -172,6 +177,7 @@ export function createUI(callbacks) {
         }
     };
 
+    // Simulation Clock Controller (Temporal Scaling)
     const speedBox = document.createElement('div');
     speedBox.className = 'hud-base station-panel';
     speedBox.style.cssText = `bottom: 20px; left: 20px; width: 220px;`;
@@ -182,6 +188,7 @@ export function createUI(callbacks) {
         <input type="range" id="global-speed" min="1" max="10000" step="1" value="1" style="width:100%; margin-top:10px;">
     `;
 
+    // Real-World Epoch (Reference Clock)
     const earthClock = document.createElement('div');
     earthClock.className = 'hud-base station-panel';
     earthClock.style.cssText = `bottom: 20px; right: 20px; text-align: right;`;
@@ -193,9 +200,11 @@ export function createUI(callbacks) {
 
     document.body.append(tabContainer, focusBar, speedBox, earthClock, missionControl);
 
+    // Event Listener: Global Simulation Time-Scaling
     const speedInput = speedBox.querySelector('#global-speed');
     speedInput.addEventListener('input', (e) => callbacks.onSpeedChange(parseFloat(e.target.value)));
 
+    // Tick: Real-world reference clock
     setInterval(() => {
         const now = new Date();
         document.getElementById('live-date').innerText = now.toISOString().split('T')[0];
@@ -210,21 +219,25 @@ export function createUI(callbacks) {
     };
 }
 
+/**
+ * FRAME-BY-FRAME UI SYNCHRONIZATION
+ * Updates the HUD based on current simulation state.
+ */
 export function updateUI(ui, satellites, simulatedTime, timeScale, focusTarget) {
-    // 1. Update Clocks
+    // Synchronize Simulation Date/Time display
     const simTimeEl = document.getElementById('sim-time-text');
     const simDateEl = document.getElementById('sim-date-text');
     if (simTimeEl) simTimeEl.innerText = simulatedTime.toLocaleTimeString();
     if (simDateEl) simDateEl.innerText = simulatedTime.toISOString().split('T')[0];
 
-    // 2. Handle Tab Rendering (Optimized with lastTargetID check)
+    // OPTIMIZED TAB RENDER: Only rebuild DOM if focus target has changed
     const currentTargetID = `${focusTarget.type}-${focusTarget.index}`;
     
     if (currentTargetID !== lastTargetID || ui.tabContainer.innerHTML === '') {
         lastTargetID = currentTargetID;
         ui.tabContainer.innerHTML = '';
         
-        // Render Mode Tabs (SUN, EARTH, MOON)
+        // Celestial Body Navigation Tabs
         ['SUN', 'EARTH', 'MOON'].forEach(body => {
             const t = document.createElement('div');
             t.className = `tab ${focusTarget.type === body ? 'active' : ''}`;
@@ -233,13 +246,13 @@ export function updateUI(ui, satellites, simulatedTime, timeScale, focusTarget) 
             ui.tabContainer.appendChild(t);
         });
 
-        // Render Satellite Tabs
+        // Dynamic Satellite Registry Tabs
         satellites.forEach((sat, index) => {
             const t = document.createElement('div');
             const isActive = (focusTarget.type === 'SATELLITE' && focusTarget.index === index);
             t.className = `tab ${isActive ? 'active' : ''}`;
             
-            // Priority: Real Data Name > Procedural ID > Default Index
+            // Source Resolver: Use Real Data naming if available
             const satName = window.realSatelliteData?.[index]?.name || sat.userData.id || `SAT ${index}`;
             t.innerText = satName;
             
@@ -250,7 +263,7 @@ export function updateUI(ui, satellites, simulatedTime, timeScale, focusTarget) 
         if (ui.setInternalState) ui.setInternalState(focusTarget.type, focusTarget.index);
     }
 
-    // 3. Handle Reset Button (Focus Bar)
+    // Toggle Camera Focus Bar Visibility
     if (ui && ui.focusBar) {
         const shouldShowFocus = focusTarget.type === 'SATELLITE' || focusTarget.type === 'MOON';
         ui.focusBar.style.display = shouldShowFocus ? 'flex' : 'none';
@@ -268,34 +281,39 @@ export function updateUI(ui, satellites, simulatedTime, timeScale, focusTarget) 
         }
     }
 
-    // --- ADDED: 4. Handle Mission Control Panel Visibility ---
+    // MISSION CONTROL VISIBILITY: Only displayed during active satellite tracking
     const missionPanel = document.getElementById('mission-control-panel');
     if (missionPanel) {
-        // Only show the live telemetry panel if we are specifically tracking a satellite
         if (focusTarget.type === 'SATELLITE') {
             missionPanel.style.display = 'block';
         } else {
             missionPanel.style.display = 'none';
-            // Optional: Clear content when hidden so old data doesn't flicker next time
             const content = document.getElementById('mission-content');
             if (content) content.innerHTML = '';
         }
     }
 }
 
+/**
+ * UPDATES THE LIVE TELEMETRY FEED (Mission Control Dashboard)
+ * Maps physical calculations (Dilation, Drift) to the visual HUD.
+ * @param {Object} stats - The telemetry payload (Velocity, Altitude, Drift).
+ * @param {string} countryName - Resolved geodetic location.
+ */
 export function updateMissionControlUI(stats, countryName) {
-const panel = document.getElementById('mission-control-panel');
-const content = document.getElementById('mission-content');
+    const panel = document.getElementById('mission-control-panel');
+    const content = document.getElementById('mission-content');
 
-if (panel && content) {
-    panel.style.display = 'block'; // Reveal the UI.js panel
+    if (panel && content) {
+        panel.style.display = 'block'; 
 
-    // Determine if we are using real data or fallback
-    const isReal = window.realSatelliteData && window.realSatelliteData.length > 0;
-    const statusColor = isReal ? '#00ff88' : '#ffa500'; // Green vs Orange
-    const sourceLabel = isReal ? 'LIVE UPLINK (N2YO)' : 'INTERNAL SIMULATION'
+        // Uplink Status Logic: Identify data source for UX clarity
+        const isReal = window.realSatelliteData && window.realSatelliteData.length > 0;
+        const statusColor = isReal ? '#00ff88' : '#ffa500'; 
+        const sourceLabel = isReal ? 'LIVE UPLINK (N2YO)' : 'INTERNAL SIMULATION';
 
-content.innerHTML = `
+        // Dynamic Template Injection: Formats relativistic results for high-readability
+        content.innerHTML = `
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid rgba(0,242,255,0.2); padding-bottom: 8px;">
                 <div style="width: 8px; height: 8px; border-radius: 50%; background: ${statusColor}; box-shadow: 0 0 8px ${statusColor};"></div>
                 <div style="font-size: 9px; letter-spacing: 1px; color: ${statusColor}">${sourceLabel}</div>
@@ -305,20 +323,24 @@ content.innerHTML = `
                 <div class="hud-label">SATELLITE IDENTIFIER</div>
                 <div class="hud-val">${stats.name}</div>
             </div>
+
             <div class="hud-row">
                 <div class="hud-label">GEOSPATIAL LOCUS</div>
                 <div class="hud-val" style="color: var(--neon); font-size: 11px;">${countryName}</div>
             </div>
+
             <div class="hud-row">
                 <div class="hud-label">ALTITUDE / VELOCITY</div>
-                <div class="hud-val">${stats.alt} KM <span style="font-size:10px; opacity:0.5;">@</span> ${stats.speed} KM/H</div>
+                <div class="hud-val">${stats.alt} KM <span style="font-size:10px; opacity:0.5;">@</span> ${stats.speed} KM/S</div>
             </div>
+
             <div class="hud-row">
                 <div class="hud-label">TEMPORAL DILATION (NET)</div>
                 <div class="hud-val" style="color: ${stats.dilation > 0 ? '#00ff88' : '#ff4444'}">
                     ${stats.dilation > 0 ? '+' : ''}${stats.dilation} ns/day
                 </div>
             </div>
+
             <div class="hud-row">
                 <div class="hud-label">TOTAL ACCUMULATED DRIFT</div>
                 <div class="hud-val" style="color: var(--neon); text-shadow: 0 0 10px rgba(0,242,255,0.5);">
@@ -326,5 +348,5 @@ content.innerHTML = `
                 </div>
             </div>
         `;
-}
+    }
 }

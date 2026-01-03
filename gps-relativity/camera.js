@@ -24,8 +24,8 @@ export function updateCameraLimits(controls, mode) {
             controls.maxDistance = 200000;
             break;
         case 'EARTH':
-            controls.minDistance = 20;
-            controls.maxDistance = 50000;
+            controls.minDistance = 200;
+            controls.maxDistance = 1000;
             break;
         case 'MOON':
             controls.minDistance = 20;
