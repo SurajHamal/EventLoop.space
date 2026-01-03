@@ -70,14 +70,6 @@
 
         .preview-video { width: 100%; height: 100%; object-fit: cover; }
 
-        .preview-hud {
-            position: absolute; top: 20px; right: 20px;
-            font-family: monospace; font-size: 9px;
-            color: var(--accent); pointer-events: none;
-            text-align: right; z-index: 10;
-            text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
-        }
-
         .card h2 { font-size: 26px; margin-bottom: 15px; font-weight: 600; }
         .card p { color: rgba(255, 255, 255, 0.5); font-size: 15px; line-height: 1.8; margin-bottom: 40px; }
 
@@ -91,7 +83,6 @@
 
         .btn:hover { background: var(--accent); }
 
-        /* --- THE SKILL BADGES --- */
         .skills {
             margin: 100px auto 0;
             display: flex; justify-content: center;
@@ -109,12 +100,11 @@
             color: rgba(255,255,255,0.4);
         }
 
-        /* --- THE FOOTER ELEMENTS --- */
         footer { margin-top: 150px; padding: 80px 0; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
         .binary-deco { font-family: monospace; font-size: 10px; color: var(--accent); opacity: 0.3; letter-spacing: 8px; margin-bottom: 20px; }
     </style>
 </head>
-<body translate = "no">
+<body translate="no">
 
 <nav>
     <div class="logo">EVENTLOOP <span style="font-weight:300; opacity:0.5">SYSTEMS</span></div>
@@ -129,11 +119,6 @@
 <div class="container">
     <div class="card">
         <div class="preview">
-            <div class="preview-hud">
-                LINK: STABLE<br>
-                ALT: 20,180km<br>
-                <span id="live-coords">0.00° N, 0.00° E</span>
-            </div>
             <video id="card-video" class="preview-video" autoplay muted playsinline loop>
                 <source src="gps-relativity/assets/videos/render_1.mp4" type="video/mp4">
             </video>
@@ -165,11 +150,10 @@
 <script>
     const video = document.getElementById('card-video');
     const loopStart = 0; 
-    const loopEnd = 26.5;
+    const loopEnd = 42;
     
-    // Ensure video is muted and playing (Browser Failsafe)
-  video.muted = true;
-  video.play().catch(error => console.log("Autoplay blocked, waiting for interaction"));
+    video.muted = true;
+    video.play().catch(error => console.log("Autoplay blocked, waiting for interaction"));
 
     video.addEventListener('timeupdate', function() {
         if (this.currentTime >= loopEnd) {
@@ -183,10 +167,6 @@
         document.getElementById('utcClock').innerText = now.getUTCHours().toString().padStart(2, '0') + ":" + 
                                                         now.getUTCMinutes().toString().padStart(2, '0') + ":" + 
                                                         now.getUTCSeconds().toString().padStart(2, '0') + " UTC";
-        
-        const lat = (Math.random() * 180 - 90).toFixed(2);
-        const lon = (Math.random() * 360 - 180).toFixed(2);
-        document.getElementById('live-coords').innerText = `${lat}° N, ${lon}° E`;
     }
     setInterval(updateInterface, 1000);
 </script>
