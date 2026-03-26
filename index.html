@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="google" content="notranslate">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EventLoop Systems | Computational Architecture</title>
     <link rel="icon" href="gps-relativity/assets/images/logos/favicon.png" type="image/png">
@@ -38,70 +37,92 @@
         .logo { font-weight: 700; letter-spacing: 2px; font-size: 16px; }
         .utc-clock { font-family: monospace; font-size: 12px; color: var(--accent); }
 
-        header { padding: 180px 20px 80px; text-align: center; }
-        h1 { font-size: clamp(40px, 8vw, 85px); font-weight: 700; letter-spacing: -4px; margin: 0; }
-        .subtitle { color: rgba(255, 255, 255, 0.4); font-size: 14px; letter-spacing: 5px; text-transform: uppercase; margin-top: 15px; }
+        header { padding: 160px 20px 40px; text-align: center; }
+        h1 { font-size: clamp(35px, 6vw, 70px); font-weight: 700; letter-spacing: -3px; margin: 0; }
+        .subtitle { color: rgba(255, 255, 255, 0.4); font-size: 12px; letter-spacing: 4px; text-transform: uppercase; margin-top: 10px; }
 
-        .container { display: flex; justify-content: center; padding: 40px; perspective: 2000px; }
+        /* SIDE BY SIDE CONTAINER */
+        .container { 
+            display: flex; 
+            justify-content: center; 
+            align-items: stretch;
+            gap: 30px; 
+            padding: 40px; 
+            max-width: 1200px;
+            margin: 0 auto;
+        }
         
         .card {
             backdrop-filter: blur(40px);
             background: var(--glass);
             border: 1px solid var(--glass-border);
-            width: 480px;
-            padding: 45px;
-            border-radius: 40px;
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
+            flex: 1; /* Makes both cards equal width */
+            max-width: 440px;
+            padding: 40px;
+            border-radius: 35px;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
         }
 
         .card:hover {
-            transform: translateY(-15px) rotateX(4deg);
+            transform: translateY(-10px);
             border-color: var(--accent);
-            box-shadow: 0 40px 80px rgba(0, 242, 255, 0.15);
+            box-shadow: 0 30px 60px rgba(0, 242, 255, 0.1);
         }
 
         .preview {
-            width: 100%; height: 280px;
-            border-radius: 24px; background: #000;
-            margin-bottom: 35px; position: relative;
+            width: 100%; height: 240px;
+            border-radius: 20px; background: #000;
+            margin-bottom: 30px; position: relative;
             overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .preview-video { width: 100%; height: 100%; object-fit: cover; }
 
-        .card h2 { font-size: 26px; margin-bottom: 15px; font-weight: 600; }
-        .card p { color: rgba(255, 255, 255, 0.5); font-size: 15px; line-height: 1.8; margin-bottom: 40px; }
+        .card h2 { font-size: 22px; margin-bottom: 12px; font-weight: 600; }
+        .card p { 
+            color: rgba(255, 255, 255, 0.4); 
+            font-size: 14px; 
+            line-height: 1.6; 
+            margin-bottom: 30px; 
+            flex-grow: 1; /* Keeps buttons aligned at bottom */
+        }
 
         .btn {
-            display: block; width: 100%; padding: 20px 0;
+            display: block; width: 100%; padding: 18px 0;
             background: #fff; color: #000; text-align: center;
-            text-decoration: none; border-radius: 18px;
-            font-weight: 700; font-size: 13px; text-transform: uppercase;
+            text-decoration: none; border-radius: 15px;
+            font-weight: 700; font-size: 11px; text-transform: uppercase;
             letter-spacing: 2px; transition: 0.3s;
         }
 
         .btn:hover { background: var(--accent); }
 
+        .btn-outline {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
         .skills {
-            margin: 100px auto 0;
+            margin: 60px auto 0;
             display: flex; justify-content: center;
             gap: 12px; flex-wrap: wrap; max-width: 800px;
         }
 
         .badge {
-            padding: 10px 20px;
+            padding: 8px 16px;
             background: rgba(255,255,255,0.02);
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 100px;
-            font-size: 10px;
+            font-size: 9px;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            color: rgba(255,255,255,0.4);
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.3);
         }
 
-        footer { margin-top: 150px; padding: 80px 0; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
-        .binary-deco { font-family: monospace; font-size: 10px; color: var(--accent); opacity: 0.3; letter-spacing: 8px; margin-bottom: 20px; }
+        footer { margin-top: 100px; padding: 60px 0; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
 <body translate="no">
@@ -112,8 +133,8 @@
 </nav>
 
 <header>
-    <h1>EventLoop Systems</h1>
-    <div class="subtitle">Architecting Deterministic Reality & Distributed Logic</div>
+    <h1>Computational Portals</h1>
+    <div class="subtitle">Real-time Orbital Mechanics & Distributed Systems</div>
 </header>
 
 <div class="container">
@@ -124,8 +145,17 @@
             </video>
         </div>
         <h2>Relativistic Geolocation</h2>
-        <p>A deterministic orbital engine simulating GPS constellations. This system calculates real-time time-dilation variances using General and Special Relativity.</p>
+        <p>A deterministic orbital engine tracking live satellite constellations via N2YO telemetry. This system calculates real-time time-dilation variances using General and Special Relativity.</p>
         <a href="gps-relativity/index.html" class="btn">Initialize Simulation</a>
+    </div>
+
+    <div class="card">
+        <div class="preview" style="background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%); display: flex; align-items: center; justify-content: center;">
+             <div style="font-family: monospace; font-size: 9px; color: rgba(0, 242, 255, 0.3); letter-spacing: 2px;">[ BLACK_SIMULATOR_OFFLINE ]</div>
+        </div>
+        <h2>Event Horizon Simulator</h2>
+        <p>A relativistic visualization engine utilizing Schwarzschild geodesics. This system simulates gravitational lensing and photon-sphere distortion in the high-curvature proximity of a non-rotating singularity.</p>
+        <a href="black-hole/index.html" class="btn btn-outline">Initialize Singularity</a>
     </div>
 </div>
 
@@ -134,41 +164,24 @@
     <span class="badge">Systems Architecture</span>
     <span class="badge">Relativistic Physics</span>
     <span class="badge">WebGL Engine</span>
-    <span class="badge">United States Based</span>
 </div>
 
 <footer>
-    <div class="binary-deco">01010011 01011001 01010011 01010100 01000101 01001101 01010011</div>
-    <div style="font-weight: 600; color: #fff; letter-spacing: 3px; text-transform: uppercase;">
+    <div style="font-weight: 600; color: #fff; letter-spacing: 3px; text-transform: uppercase; font-size: 12px;">
         SURAJ HAMAL <span style="font-weight: 300; opacity: 0.4;">| PRINCIPAL ENGINEER</span>
-    </div>
-    <div style="margin-top: 12px; font-size: 10px; opacity: 0.3; letter-spacing: 2px;">
-        COMPUTATIONAL PHYSICS RESEARCH • 2025 UNITED STATES
     </div>
 </footer>
 
 <script>
-    const video = document.getElementById('card-video');
-    const loopStart = 0; 
-    const loopEnd = 42;
-    
-    video.muted = true;
-    video.play().catch(error => console.log("Autoplay blocked, waiting for interaction"));
-
-    video.addEventListener('timeupdate', function() {
-        if (this.currentTime >= loopEnd) {
-            this.currentTime = loopStart;
-            this.play();
-        }
-    });
-
     function updateInterface() {
         const now = new Date();
-        document.getElementById('utcClock').innerText = now.getUTCHours().toString().padStart(2, '0') + ":" + 
-                                                        now.getUTCMinutes().toString().padStart(2, '0') + ":" + 
-                                                        now.getUTCSeconds().toString().padStart(2, '0') + " UTC";
+        document.getElementById('utcClock').innerText = 
+            now.getUTCHours().toString().padStart(2, '0') + ":" + 
+            now.getUTCMinutes().toString().padStart(2, '0') + ":" + 
+            now.getUTCSeconds().toString().padStart(2, '0') + " UTC";
     }
     setInterval(updateInterface, 1000);
+    updateInterface();
 </script>
 
 </body>
