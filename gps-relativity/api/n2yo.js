@@ -1,6 +1,6 @@
 export async function loadRealSatelliteData() {
     // Point to your Vercel deployment (or relative path if same domain)
-    const BASE = 'https://your-project.vercel.app';  // ← replace with your Vercel URL
+    const BASE = 'https://event-loop-space.vercel.app';  // ← replace with your Vercel URL
 
     try {
         const listData = await fetch(`${BASE}/api/satellite?type=above`).then(r => r.json());
