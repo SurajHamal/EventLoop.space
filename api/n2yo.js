@@ -1,13 +1,29 @@
 export async function loadRealSatelliteData() {
-    // Point to your Vercel deployment (or relative path if same domain)
-    const BASE = 'https://event-loop-space.vercel.app';  // ← replace with your Vercel URL
+    const BASE = 'https://event-loop-space.vercel.app';
 
     try {
         const listData = await fetch(`${BASE}/api/satellite?type=above`).then(r => r.json());
 
         if (!listData.above) return [];
 
-        // ... your existing filtering logic stays exactly the same ...
+        // --- HETEROGENEOUS DATA FILTERING ---
+        const seenIds = new Set();
+        const seenNames = new Set();
+        const uniqueSats = [];
+
+        for (const sat of listData.above) {
+            const baseName = sat.satname.split(/[- ]/)[0];
+
+            if (!seenIds.has(sat.satid) && !seenNames.has(baseName)) {
+                seenIds.add(sat.satid);
+                seenNames.add(baseName);
+                uniqueSats.push(sat);
+            }
+
+            if (uniqueSats.length >= 5) break;
+        }
+
+        const topSats = uniqueSats;
 
         const satellitePromises = topSats.map(async (sat) => {
             try {
