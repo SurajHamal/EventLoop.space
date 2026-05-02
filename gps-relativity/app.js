@@ -19,7 +19,7 @@ import { initCameraControls, updateCameraLimits } from './camera.js';
 import { CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js';
 import { calculateTelemetry, updateCountry } from './entities/telemetry.js';
 import { createOrbitPath } from './entities/paths.js';
-import { loadRealSatelliteData } from './api/n2yo.js';
+import { loadRealSatelliteData } from '../api/n2yo.js';
 
 // --- Global Simulation State ---
 let simulatedTime = new Date(); // Internal Epoch for propagation
